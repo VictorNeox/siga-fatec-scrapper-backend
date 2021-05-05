@@ -1,0 +1,7 @@
+{
+  "name": "siga-fatec-scrapper-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "neoX <victorrodrigues753@gmail.com>",
+  "license": "MIT"
+}
