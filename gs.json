@@ -1,0 +1,21 @@
+{
+  "_EventName": "E'EVT_CONFIRMAR'.",
+  "_EventGridId": "",
+  "_EventRowId": "",
+  "MPW0005_CMPPGM": "login_top.aspx",
+  "MPW0005GX_FocusControl": "",
+  "vSAIDA": "",
+  "vREC_SIS_USUARIOID": "",
+  "GX_FocusControl": "vSIS_USUARIOID",
+  "GX_AJAX_KEY": "EEA8074092F87B1ABCE850581F94C38D",
+  "AJAX_SECURITY_TOKEN": "7CC597E26464488DFAE1772F4935202027FD83034EC54D88D2B542E247F40DBE",
+  "GX_CMP_OBJS": {
+    "MPW0005": "login_top"
+  },
+  "sCallerURL": "https://siga.cps.sp.gov.br/aluno/home.aspx",
+  "GX_RES_PROVIDER": "GXResourceProvider.aspx",
+  "GX_THEME": "GeneXusX",
+  "_MODE": "",
+  "Mode": "",
+  "IsModified": "1"
+}
