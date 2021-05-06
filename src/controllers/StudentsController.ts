@@ -1,7 +1,7 @@
 import { Response, Request } from 'express';
 import { SessionInformation } from '../utils/SessionInformation';
 
-//import { sigaEndpoint as api } from '../../axiosConfig';
+import { sigaEndpoint as api } from '../../axiosConfig';
 
 import { Parser } from '../utils/Parser';
 
@@ -12,16 +12,17 @@ const GXState = JSON.stringify(require('../../gs.json'));
 
 class StudentsController {
 
-    async getBasicInfo(request: Request, response: Response) {
+    async basicInfo(request: Request, response: Response) {
         const { user, password } = request.body;
 
         const sessionInformation = new SessionInformation();
+        const cookie = await sessionInformation.get()
         const parser = new Parser();
 
         const headers = {
             Connection: 'keep-alive',
             'Content-Type': 'application/x-www-form-urlencoded',
-            Cookie: await sessionInformation.get(),
+            Cookie: cookie,
             Origin: 'https://siga.cps.sp.gov.br',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0',
         }
@@ -33,18 +34,33 @@ class StudentsController {
             GXState,
         }
 
-        const url = 'https://siga.cps.sp.gov.br/aluno/login.aspx?467fcdffaf3c6a7d3797ca97bfff148f,,gx-no-cache=1620252094673';
         const data = qs.stringify(body);
-        const sigaResponse = await axios({
-            method: 'post',
-            url,
-            data,
-            headers,
-        });
 
-        const studentData = await parser.parseBasicInfo(sigaResponse.data);
+        const sigaResponse = await api.post('/login.aspx', data, { headers });
+
+        const studentData = {
+            basicInformation: await parser.parseBasicInfo(sigaResponse.data),
+            token: sigaResponse.config.headers.Cookie
+        }
 
         return response.json(studentData);
+    }
+
+    async subjects(request: Request, response: Response) {
+        const { sigatoken } = request.headers;
+
+        const sigaResponse = await api.get('/notasparciais.aspx', {
+            headers: {
+                cookie: sigatoken
+            }
+        });
+
+        const parser = new Parser();
+
+        await parser.parseSubjects(sigaResponse.data);
+
+
+        return response.send(sigaResponse.data)
     }
 }
 
