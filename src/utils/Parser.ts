@@ -124,15 +124,18 @@ class Parser {
                 const schedule = [];
 
                 containerData.forEach(element => {
-                    const [, subject, , teacher] = subjects.filter(subject => {
+                    let [, subject, , teacher] = subjects.filter(subject => {
                         return subject[0] == element[2];
                     })[0];
 
+                    subject = subject.split(' - ');
+
+                    subject = (subject.length > 2) ? `${subject[0]} - ${subject[1]}` : subject[0];
 
                     schedule.push({
                         hour: element[1],
                         initials: element[2],
-                        subject: subject.split('-')[0].trim(),
+                        subject,
                         teacher
                     });
                 });
