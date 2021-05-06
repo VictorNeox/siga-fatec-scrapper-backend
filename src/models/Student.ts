@@ -11,10 +11,6 @@ interface IUserLogin {
     password: string;
 }
 
-interface IUserToken {
-    token: string;
-}
-
 class Student {
     user: string;
     password: string;
