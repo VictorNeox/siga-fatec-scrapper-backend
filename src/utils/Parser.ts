@@ -3,6 +3,15 @@ import { AxiosResponse } from "axios";
 import cheerio from 'cheerio';
 
 class Parser {
+
+    async parseLogin(htmlString: AxiosResponse) {
+        const $ = cheerio.load(htmlString);
+
+        const isCredentialsValid = $('#span_vSAIDA');
+
+        return isCredentialsValid.html() != 'Não confere Login e Senha';
+    }
+
     async parseBasicInfo(htmlString: AxiosResponse) {
         const $ = cheerio.load(htmlString);
 

@@ -2,69 +2,57 @@ import { SessionInformation } from '../utils/SessionInformation';
 import { Parser } from '../utils/Parser';
 import qs from 'querystring';
 import { sigaEndpoint as api } from '../../axiosConfig';
+import { Student } from '../models/Student';
 
 
 const GXState = JSON.stringify(require('../../gs.json'));
 
-interface IStudentData {
+interface IStudentCredentials {
     user: string;
     password: string;
 }
 
 class StudentsService {
-    async basicInfo({ user, password }: IStudentData) {
-        const sessionInformation = new SessionInformation();
-        const cookie = await sessionInformation.get()
-        const parser = new Parser();
-        const headers = {
-            Connection: 'keep-alive',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Cookie: cookie,
-            Origin: 'https://siga.cps.sp.gov.br',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0',
-        }
 
-        const body = {
-            vSIS_USUARIOID: user,
-            vSIS_USUARIOSENHA: password,
-            BTCONFIRMA: 'Confirmar',
-            GXState,
-        }
+    async login(userData: IStudentCredentials) {
+        const student = new Student();
 
-        const data = qs.stringify(body);
+        await student.login(userData);
 
-        const sigaResponse = await api.post('/login.aspx', data, { headers });
-
-        const studentData = {
-            basicInformation: await parser.parseBasicInfo(sigaResponse.data),
-            token: sigaResponse.config.headers.Cookie
-        }
-
-        return studentData;
+        return { token: student.token, message: 'Login efetuado com sucesso!' };
     }
 
-    async subjects(sigaToken) {
-        const sigaResponse = await api.get('/notasparciais.aspx', {
-            headers: {
-                cookie: sigaToken
-            }
-        });
+    async basicInfo(token) {
 
-        const parser = new Parser();
+        const student = new Student();
 
-        return await parser.parseSubjects(sigaResponse.data);
+        await student.validateToken(token);
+
+        return await student.getBasicInfo();
     }
 
-    async history(sigaToken) {
-        const sigaResponse = await api.get('/historico.aspx', {
-            headers: {
-                cookie: sigaToken
-            }
-        });
+    async subjects(token) {
+        const student = new Student();
 
-        const parser = new Parser();
+        await student.validateToken(token);
 
-        return await parser.parseHistory(sigaResponse.data);
+        return await student.getSubjects();
+    }
+
+    async history(token) {
+        const student = new Student();
+
+        await student.validateToken(token);
+
+        return await student.getHistory();
+    }
+
+    async allData(token) {
+        const student = new Student();
+
+        await student.validateToken(token);
+
+        return await student.getAllData();
     }
 }
 

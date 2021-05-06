@@ -1,13 +1,20 @@
 import { Router } from 'express';
 import { StudentsController } from './controllers/StudentsController';
+import { TokenMiddleware } from './middlewares/TokenMiddleware';
 
 const routes = Router();
 
+const tokenMiddleware = new TokenMiddleware();
+
+
 const studentsController = new StudentsController();
 
-routes.post('/student/basicinfo', studentsController.basicInfo);
+routes.get('/student/basicinfo', tokenMiddleware.checkToken, studentsController.basicInfo);
+routes.get('/student/allinfo', studentsController.allInfo);
 routes.get('/student/subjects', studentsController.subjects);
-routes.post('/student/allinfo', studentsController.allInfo);
 routes.get('/student/history', studentsController.history);
+
+routes.post('/student/login', studentsController.login);
+
 
 export { routes };
