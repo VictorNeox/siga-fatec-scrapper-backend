@@ -1,66 +1,73 @@
 import { Response, Request } from 'express';
-import { SessionInformation } from '../utils/SessionInformation';
 
-import { sigaEndpoint as api } from '../../axiosConfig';
-
-import { Parser } from '../utils/Parser';
-
-import qs from 'querystring';
-import axios from 'axios';
-
-const GXState = JSON.stringify(require('../../gs.json'));
+import { StudentsService } from '../services/StudentsService';
 
 class StudentsController {
 
     async basicInfo(request: Request, response: Response) {
-        const { user, password } = request.body;
 
-        const sessionInformation = new SessionInformation();
-        const cookie = await sessionInformation.get()
-        const parser = new Parser();
+        const studentsService = new StudentsService();
 
-        const headers = {
-            Connection: 'keep-alive',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Cookie: cookie,
-            Origin: 'https://siga.cps.sp.gov.br',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0',
+        try {
+            const studentData = await studentsService.basicInfo(request.body);
+
+            return response.json(studentData);
+        } catch (err) {
+            response.status(400).json({ message: err.message });
         }
-
-        const body = {
-            vSIS_USUARIOID: user,
-            vSIS_USUARIOSENHA: password,
-            BTCONFIRMA: 'Confirmar',
-            GXState,
-        }
-
-        const data = qs.stringify(body);
-
-        const sigaResponse = await api.post('/login.aspx', data, { headers });
-
-        const studentData = {
-            basicInformation: await parser.parseBasicInfo(sigaResponse.data),
-            token: sigaResponse.config.headers.Cookie
-        }
-
-        return response.json(studentData);
     }
 
     async subjects(request: Request, response: Response) {
         const { sigatoken } = request.headers;
 
-        const sigaResponse = await api.get('/notasparciais.aspx', {
-            headers: {
-                cookie: sigatoken
+        const studentsService = new StudentsService();
+
+        try {
+            const subjects = await studentsService.subjects(sigatoken);
+
+            return response.send(subjects);
+        } catch (err) {
+            return response.status(400).json({ message: err.message });
+        }
+    }
+
+    async history(request: Request, response: Response) {
+        const { sigatoken } = request.headers;
+
+        const studentsService = new StudentsService();
+
+        try {
+            const history = await studentsService.history(sigatoken);
+
+            return response.json(history);
+        } catch (err) {
+            return response.status(400).json({ message: err.message });
+        }
+    }
+
+    async allInfo(request: Request, response: Response) {
+
+        try {
+            const { sigatoken } = request.headers;
+
+            const studentsService = new StudentsService();
+
+            const basicInfo = await studentsService.basicInfo(request.body);
+
+            const subjects = await studentsService.subjects(sigatoken);
+
+            const history = await studentsService.history(sigatoken);
+
+            const studentsData = {
+                basicInfo: basicInfo.basicInformation,
+                subjects,
+                history
             }
-        });
 
-        const parser = new Parser();
-
-        await parser.parseSubjects(sigaResponse.data);
-
-
-        return response.send(sigaResponse.data)
+            return response.json(studentsData);
+        } catch (err) {
+            return response.status(400).json({ message: err.message });
+        }
     }
 }
 

@@ -1,10 +1,15 @@
 import { AxiosResponse } from "axios";
 
-import cheerio, { html } from 'cheerio';
+import cheerio from 'cheerio';
 
 class Parser {
     async parseBasicInfo(htmlString: AxiosResponse) {
         const $ = cheerio.load(htmlString);
+
+        if (!parseInt($('span[id$="vACD_ALUNOCURSOCICLOATUAL"]').text().trim())) {
+            throw new Error('Usuário não encontrado.');
+        }
+
 
         const basicInformation = {
             name: $('span[id$="PRO_PESSOALNOME"]').text().split(' -')[0],
@@ -12,12 +17,12 @@ class Parser {
             ra: $('span[id$="ALUNOCURSOREGISTROACADEMICOCURSO"]').text(),
             profilePicture: $('div[id$="FOTO"]').children().first().attr('src'),
             course: $('span[id$="_vACD_CURSONOME_MPAGE"]').text(),
-            currentSemester: $('span[id$="vACD_ALUNOCURSOCICLOATUAL"]').text().trim(),
-            attendedSemesters: $('span[id$="vSEMESTRESCURSADOS"]').text().trim(),
-            remainingSemestes: $('span[id$="vFALTA"]').text().trim(),
-            maxSemesters: $('span[id$="vINTEGRALIZACAOMAX"]').text().trim(),
-            progress: $('span[id$="_vACD_ALUNOCURSOINDICEPP"]').text(),
-            average: $('span[id$="_vACD_ALUNOCURSOINDICEPR"]').text(),
+            currentSemester: parseInt($('span[id$="vACD_ALUNOCURSOCICLOATUAL"]').text().trim()),
+            attendedSemesters: parseInt($('span[id$="vSEMESTRESCURSADOS"]').text().trim()),
+            remainingSemestes: parseInt($('span[id$="vFALTA"]').text().trim()),
+            maxSemesters: parseInt($('span[id$="vINTEGRALIZACAOMAX"]').text().trim()),
+            progress: parseFloat($('span[id$="_vACD_ALUNOCURSOINDICEPP"]').text().replace(',', '.')),
+            average: parseFloat($('span[id$="_vACD_ALUNOCURSOINDICEPR"]').text().replace(',', '.')),
         };
         return basicInformation;
     }
@@ -49,17 +54,37 @@ class Parser {
                 });
             });
 
-            console.log(testsNames)
-
             subjects.push({
                 name: subject[5],
                 initials: subject[4],
-                average: subject[10],
-                absences: subject[15],
-                frequency: subject[20],
-                tests
+                average: parseFloat(subject[10].replace(',', '.')),
+                absences: parseInt(subject[15]),
+                frequency: parseFloat(subject[20].replace(',', '.')),
+                tests: testsNames
             });
         });
+
+        return subjects;
+    }
+
+    async parseHistory(htmlString: AxiosResponse) {
+        const $ = cheerio.load(htmlString);
+
+        const history = [];
+
+        const subjectsList = JSON.parse($('input[name="Grid1ContainerDataV"]').attr('value'));
+
+        subjectsList.forEach((subject) => {
+            history.push({
+                initials: subject[0],
+                name: subject[1],
+                finalAverage: parseFloat(subject[4].trim()) || 0.0,
+                frequency: parseFloat(subject[5].trim().split('%')[0]) || 0.0,
+                observation: subject[6]
+            });
+        });
+
+        return history;
     }
 }
 
