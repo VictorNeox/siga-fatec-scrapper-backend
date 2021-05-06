@@ -3,8 +3,7 @@ import { StudentsService } from '../services/StudentsService';
 
 class StudentsController {
 
-
-    async login(request: Request, response: Response) {
+    async login(request: Request, response: Response): Promise<any> {
         const credentials = request.body;
 
         const studentsService = new StudentsService();
@@ -16,7 +15,7 @@ class StudentsController {
         }
     }
 
-    async basicInfo(request: Request, response: Response) {
+    async basicInfo(request: Request, response: Response): Promise<any> {
 
         const studentsService = new StudentsService();
 
@@ -30,7 +29,7 @@ class StudentsController {
         }
     }
 
-    async subjects(request: Request, response: Response) {
+    async subjects(request: Request, response: Response): Promise<any> {
         const { token } = request.headers;
 
         const studentsService = new StudentsService();
@@ -44,7 +43,7 @@ class StudentsController {
         }
     }
 
-    async history(request: Request, response: Response) {
+    async history(request: Request, response: Response): Promise<any> {
         const { token } = request.headers;
 
         const studentsService = new StudentsService();
@@ -58,7 +57,22 @@ class StudentsController {
         }
     }
 
-    async allInfo(request: Request, response: Response) {
+    async schedule(request: Request, response: Response): Promise<any> {
+        const { token } = request.headers;
+
+        const studentsService = new StudentsService();
+
+        try {
+            const schedule = await studentsService.schedule(token);
+
+            return response.json(schedule);
+        } catch (err) {
+            return response.status(400).json({ message: err.message });
+        }
+    }
+
+
+    async allInfo(request: Request, response: Response): Promise<any> {
 
         const { token } = request.headers;
 

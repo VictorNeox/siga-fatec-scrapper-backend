@@ -47,6 +47,14 @@ class StudentsService {
         return await student.getHistory();
     }
 
+    async schedule(token) {
+        const student = new Student();
+
+        await student.validateToken(token);
+
+        return await student.getSchedule();
+    }
+
     async allData(token) {
         const student = new Student();
 

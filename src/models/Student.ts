@@ -85,16 +85,24 @@ class Student {
         return await this.parser.parseHistory(data);
     }
 
+    async getSchedule(): Promise<any> {
+        const data = await this.request.getRouteData('/horario.aspx', this.token);
+
+        return await this.parser.parseSchedule(data);
+    }
+
     async getAllData(): Promise<any> {
 
         const basicInfo = await this.getBasicInfo();
         const subjects = await this.getSubjects();
         const history = await this.getHistory();
+        const schedule = await this.getSchedule();
 
         const data = {
             basicInfo,
             subjects,
-            history
+            history,
+            schedule
         }
 
         return data;

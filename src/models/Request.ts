@@ -1,7 +1,7 @@
 import { sigaEndpoint as api } from '../../axiosConfig';
 
 class Request {
-    async getRouteData(route: string, token) {
+    async getRouteData(route: string, token: string): Promise<any> {
 
         const headers = {
             Cookie: token,

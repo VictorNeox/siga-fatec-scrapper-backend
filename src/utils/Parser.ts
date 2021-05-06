@@ -4,7 +4,7 @@ import cheerio from 'cheerio';
 
 class Parser {
 
-    async parseLogin(htmlString: AxiosResponse) {
+    async parseLogin(htmlString: AxiosResponse): Promise<any> {
         const $ = cheerio.load(htmlString);
 
         const isCredentialsValid = $('#span_vSAIDA');
@@ -12,7 +12,7 @@ class Parser {
         return isCredentialsValid.html() != 'Não confere Login e Senha';
     }
 
-    async parseBasicInfo(htmlString: AxiosResponse) {
+    async parseBasicInfo(htmlString: AxiosResponse): Promise<any> {
         const $ = cheerio.load(htmlString);
 
         if (!parseInt($('span[id$="vACD_ALUNOCURSOCICLOATUAL"]').text().trim())) {
@@ -36,7 +36,7 @@ class Parser {
         return basicInformation;
     }
 
-    async parseSubjects(htmlString: AxiosResponse) {
+    async parseSubjects(htmlString: AxiosResponse): Promise<any> {
         const $ = cheerio.load(htmlString);
 
         const subjects = [];
@@ -76,7 +76,7 @@ class Parser {
         return subjects;
     }
 
-    async parseHistory(htmlString: AxiosResponse) {
+    async parseHistory(htmlString: AxiosResponse): Promise<any> {
         const $ = cheerio.load(htmlString);
 
         const history = [];
@@ -94,6 +94,61 @@ class Parser {
         });
 
         return history;
+    }
+
+    async parseSchedule(htmlString: AxiosResponse): Promise<any> {
+        const $ = cheerio.load(htmlString);
+
+        const subjectsSchedule = $('input[name$="ContainerDataV"]');
+
+        const daysOfWeek = [
+            'Domingo',
+            'Segunda-feira',
+            'Terça-feira',
+            'Quarta-feira',
+            'Quinta-feira',
+            'Sexta-feira',
+            'Sábado',
+        ]
+
+        const daySchedule = []
+
+        const subjects = JSON.parse($('input[name="Grid1ContainerDataV"]').attr('value'));
+
+        subjectsSchedule.each((index, container) => {
+            if (index != 0) {
+
+                const containerData = JSON.parse($(container).attr('value'));
+
+
+                const schedule = [];
+
+                containerData.forEach(element => {
+                    const [, subject, , teacher] = subjects.filter(subject => {
+                        return subject[0] == element[2];
+                    })[0];
+
+
+                    schedule.push({
+                        hour: element[1],
+                        initials: element[2],
+                        subject: subject.split('-')[0].trim(),
+                        teacher
+                    });
+                });
+
+
+                // Sorting the schedule object to hour ascending order
+                schedule.sort((a, b) => (a.hour.split('-')[0] > b.hour.split('-')[0]) ? 1 : (b.hour.split('-')[0] > a.hour.split('-')[0]) ? -1 : 0);
+
+                daySchedule.push({
+                    dayWeek: daysOfWeek[index],
+                    schedule
+                });
+            }
+        });
+
+        return daySchedule;
     }
 }
 
