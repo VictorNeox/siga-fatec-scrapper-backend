@@ -2,6 +2,7 @@ import { SessionInformation } from '../utils/SessionInformation';
 import { Parser } from '../utils/Parser';
 import qs from 'querystring';
 import { sigaEndpoint as api } from '../../axiosConfig';
+import { Request } from './Request';
 
 const GXState = JSON.stringify(require('../../gs.json'));
 
@@ -21,8 +22,11 @@ class Student {
 
     parser: Parser;
 
+    request: Request;
+
     constructor() {
         this.parser = new Parser();
+        this.request = new Request();
     }
 
     async login({ user, password }: IUserLogin): Promise<void> {
@@ -66,35 +70,21 @@ class Student {
         return true;
     }
 
-    async getRouteData(route: string) {
-
-        const headers = {
-            Cookie: this.token,
-        }
-        const { data, status } = await api.get(route, { headers });
-
-        if (status === 303) {
-            throw new Error('Token expirado, realize o login novamente.');
-        }
-
-        return data;
-    }
-
     async getBasicInfo(): Promise<any> {
 
-        const data = await this.getRouteData('/home.aspx');
+        const data = await this.request.getRouteData('/home.aspx', this.token);
 
         return await this.parser.parseBasicInfo(data);
     }
 
     async getSubjects(): Promise<any> {
-        const data = await this.getRouteData('/notasparciais.aspx');
+        const data = await this.request.getRouteData('/notasparciais.aspx', this.token);
 
         return await this.parser.parseSubjects(data);
     }
 
     async getHistory(): Promise<any> {
-        const data = await this.getRouteData('/historico.aspx');
+        const data = await this.request.getRouteData('/historico.aspx', this.token);
 
         return await this.parser.parseHistory(data);
     }
