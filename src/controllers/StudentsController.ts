@@ -10,8 +10,6 @@ interface IStudentCredentials {
 }
 
 function generateToken(credentials: IStudentCredentials) {
-    console.log(credentials.user, credentials.password);
-
     return jwt.sign({ username: credentials.user, password: credentials.password }, authConfig.secret, {
         expiresIn: '365d',
     });
@@ -102,8 +100,6 @@ class StudentsController {
         const studentsService = new StudentsService();
 
         const credentials = response.locals.credentials as IStudentCredentials;
-
-        console.log(credentials);
 
         try {
             const { token } = await studentsService.login(credentials);

@@ -68,25 +68,25 @@ class Student {
 
     async getBasicInfo(): Promise<any> {
 
-        const data = await this.request.getRouteData('/home.aspx', this.token);
+        const data = await this.request.get('/home.aspx', this.token);
 
         return await this.parser.parseBasicInfo(data);
     }
 
     async getSubjects(): Promise<any> {
-        const data = await this.request.getRouteData('/notasparciais.aspx', this.token);
+        const data = await this.request.get('/notasparciais.aspx', this.token);
 
         return await this.parser.parseSubjects(data);
     }
 
     async getHistory(): Promise<any> {
-        const data = await this.request.getRouteData('/historico.aspx', this.token);
+        const data = await this.request.get('/historico.aspx', this.token);
 
         return await this.parser.parseHistory(data);
     }
 
     async getSchedule(): Promise<any> {
-        const data = await this.request.getRouteData('/horario.aspx', this.token);
+        const data = await this.request.get('/horario.aspx', this.token);
 
         return await this.parser.parseSchedule(data);
     }
