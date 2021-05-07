@@ -22,6 +22,10 @@ class StudentsController {
 
         const studentsService = new StudentsService();
 
+        if (!credentials.user || !credentials.password) {
+            return response.status(400).json({ message: `You didn't provided the user or password` });
+        }
+
         try {
             const { message } = await studentsService.login(credentials);
             return response.json({
