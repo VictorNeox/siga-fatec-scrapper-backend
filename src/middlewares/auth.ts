@@ -38,7 +38,7 @@ class TokenMiddleware {
             }
         });
 
-        next();
+        return next();
     }
 }
 
