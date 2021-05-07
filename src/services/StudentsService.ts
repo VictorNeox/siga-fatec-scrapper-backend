@@ -1,11 +1,5 @@
-import { SessionInformation } from '../utils/SessionInformation';
-import { Parser } from '../utils/Parser';
-import qs from 'querystring';
-import { sigaEndpoint as api } from '../../axiosConfig';
 import { Student } from '../models/Student';
 
-
-const GXState = JSON.stringify(require('../../gs.json'));
 
 interface IStudentCredentials {
     user: string;
