@@ -5,6 +5,7 @@
   "author": "neoX <victorrodrigues753@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "start": "node src/server.ts",
     "dev": "ts-node-dev src/server.ts"
   },
   "dependencies": {
